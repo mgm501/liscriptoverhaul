@@ -1,17 +1,18 @@
-#ifdef "MAP"
-#define "MAP"
+#ifndef MAP
+#define MAP
+#include <map>
 #include <iostream>
 
-#include std::map;
+#include <map>
 
-const std::map<unsigned short, int> sn2id1 = {
+const map<unsigned short, int> sn2id1 = {
   {336, 0},
   {409, 1},
   {89, 2}
 };
 
 
-const std::map<unsigned short, int> sn2id2 = {
+const map<unsigned short, int> sn2id2 = {
   {336, 0},
   {409, 1},
   {405, 2},
@@ -36,7 +37,7 @@ const int channelmap2[3][16] = {
 };
 
 // small detectors prefixed with 100. detector index to loop id
-const std::map<unsigned short, int> index2id = {
+const map<unsigned short, int> index2id = {
   {  2,   3},
   {  4,   0},
   {  5,   1},
@@ -57,7 +58,28 @@ const std::map<unsigned short, int> index2id = {
   {200, 200},
 };
 
-const std::map<int, int> id2angleorder = {
+const map<unsigned short, int> num2id = {
+  {  2,   3},
+  {  4,   0},
+  {  5,   1},
+  {  7,   2},
+  {  8,  15},
+  { 10,   4},
+  { 11,   5},
+  { 13,   6},
+  {105,   7},
+  {106,   8},
+  {107,   9},
+  {108,  10},
+  {110,  11},
+  {111,  12},
+  {112,  13},
+  {114,  14},
+  {115,  16},
+  {200, 200},
+};
+
+const map<int, int> id2angleorder = {
   {0, 12},
   {1, 15},
   {2, 7},
@@ -77,4 +99,4 @@ const std::map<int, int> id2angleorder = {
   {16, 9},
 };
 
-#endif "MAP"
+#endif

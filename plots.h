@@ -1,11 +1,16 @@
-#ifdef "PLOTS"
-#define "PLOTS"
+#ifndef PLOTS
+#define PLOTS
 #include "variables.h"
-#include <TH1.h>
-#include <TH2.h>
+#include <map>
+#include "TH1.h"
+#include "TH2.h"
+#include <iostream>
+#include <cstdlib>
 
-TH1D *tof[ndet];
-TH1D *psd[ndet];
+using std::string;
+
+TH1D *tofplot[ndet];
+TH1D *psdplot[ndet];
 TH1D *total1d[ndet];
 TH2D *total2d[ndet];
 TH1D *energy[ndet];
@@ -40,33 +45,31 @@ for (int i = 0; i < ndet; i++) {
 }
 energyplot = new TH1D("energies", "energies", 57, -20, 20);
 
-def plotfill() {
-    for (int i = 0; i < ndet; i++) {
-      if (tN[i] > 0 && tRF != 0) {
-
-        if (tN[i] < tRF) {
-            tof = tRF - tN[i];
+def plotfill(string &var) {
+  for (int i = 0; i < ndet; i++) {
+    if (tN[i] > 0 && tRF != 0) {
+      if (tN[i] < tRF) {
+        tof = tRF - tN[i];
+      }
+      else {
+        tof = tN[i] - tRF;
+      }
+      if (var == "tof") {tofplot[i]->Fill(tof);}
+      if (var == "psd") {psdplot[i]->Fill((a[i]*eL[i])+b[i], (eL[i]-eS[i])*1.0/eL[i]);} 
+      if(cuts[i]->IsInside(((a[i]*eL[i]) + b[i]), ((eL[i]-eS[i])*1.0/eL[i]))) {
+        if (var == "tofg") {tofg[i]->Fill(tof);}
+        tofsec = tof * 1.e-9;
+        mev = joules2mev * ( (0.5) * mnsi * ((sorteddistance[i] * sorteddistance[i]) / (tofsec * tofsec)) );
+        if (target == "carbon") {
+          residualmass = m14o;
+          q0 = -1.15;
+        } else if (target == "li") {
+          residualmass = m9b;
+          q0 = 9.35;
         }
-        else {
-            tof = tN[i] - tRF;
-        }
-
-        tof[i]->Fill(tof);
-        psd[i]->Fill((a[i]*eL[i])+b[i], (eL[i]-eS[i])*1.0/eL[i]);
-
-        if(cuts[i]->IsInside(((a[i]*eL[i]) + b[i]), ((eL[i]-eS[i])*1.0/eL[i]))) {
-          tDiffg[i]->Fill(tdf);
-          tofsec = tof * 1.e-9;
-          mev = joules2mev * ( (0.5) * mnsi * ((sorteddistance[i] * sorteddistance[i]) / (tofsec * tofsec)) );
-          if (target == "carbon") {
-            residualmass = m14o;
-            q0 = -1.15;
-          } else if (target == "li") {
-            residualmass = m9b;
-            q0 = 9.35;
-          }
-          q = mev - beamenergy + ( (1/residualmass) * ( (projectilemass * beamenergy) + (mn * energyMeV) - (2 * sqrt(m3*mn*beamenergy*mev) * cos((3.14159 * angle[i])/ 180.)) )); 
-          ex = q0 - q;
+        q = mev - beamenergy + ( (1/residualmass) * ( (projectilemass * beamenergy) + (mn * energyMeV) - (2 * sqrt(m3*mn*beamenergy*mev) * cos((3.14159 * angle[i])/ 180.)) )); 
+        ex = q0 - q;
+        if (var == "ex" || var == "qvalues") {
           if (Q < -20 || Q > 20 || ex < -20 || ex > 20 || i == 16 || i == 17) {
             continue;
           }
@@ -75,9 +78,34 @@ def plotfill() {
             nenergy[i]->Fill(energyMeV);
           }
         }
-
       }
     }
+  }
 }
 
-#endif "PLOTS"
+def addplot(string &det) {
+  if (det == "all") {
+    for (int i = 0; i < ndet; i++) {
+      if (var == "tof") {total1d[i]->Add(tofplot[i],norm);}
+      if (var == "psd") {total2d[i]->Add(psdplot[i],norm);}
+      if (var == "tofg") {total1d[i]->Add(tofg[i],norm);}
+      if (var == "qvalues") {totq[i]->Add(qvalues[i],norm);}
+      if (var == "ex") {totq[i]->Add(excitation[i],norm);}
+      tof[i]->Reset();
+      psd[i]->Reset();
+      tofg[i]->Reset();
+      qvalues[i]->Reset();
+      excitation[i]->Reset();
+    }
+  } else {
+    int detnum = std::stoi(det);
+    int detindex = num2id.at(detnum);
+    if (var == "tof") {total1d[detindex]->Add(tofplot[detindex],norm);}
+    if (var == "psd") {total2d[detindex]->Add(psdplot[detindex],norm);}
+    if (var == "tofg") {total1d[detindex]->Add(tofg[detindex],norm);}
+    if (var == "qvalues") {totq[detindex]->Add(qvalues[detindex],norm);}
+    if (var == "ex") {totq[detindex]->Add(excitation[detindex],norm);}
+  }
+}
+
+#endif
