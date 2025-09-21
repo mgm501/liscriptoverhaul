@@ -1,5 +1,11 @@
 {
     "files.associations": {
-        "random": "cpp"
+        "random": "cpp",
+        "iosfwd": "cpp",
+        "fstream": "cpp",
+        "array": "cpp",
+        "iostream": "cpp",
+        "new": "cpp",
+        "vector": "cpp"
     }
 }
